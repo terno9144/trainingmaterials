@@ -10,6 +10,8 @@ contract VotingTest is Test {
     VotingContract public votingContract;
     address[] public candidates = [0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0x70997970C51812dc3A010C7d01b50e0d17dc79C8, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC];
 
+    receive() external payable {}
+
     function setUp() public {
         votingContract = new VotingContract(10, 10);
     }
@@ -58,16 +60,12 @@ contract VotingTest is Test {
     }
 
     function test_VoteForAccount() public {
-        vm.startPrank(0xa0Ee7A142d267C1f36714E4a8F75612F20a79720);
-        vm.deal(0xa0Ee7A142d267C1f36714E4a8F75612F20a79720, 1000);
-        votingContract = new VotingContract(10, 10);
         votingContract.addVoting(1000, candidates);
         votingContract.startVoting(0);
         (bool success, ) = address(votingContract).call{value: 900}
             (abi.encodeWithSelector(votingContract.vote.selector, 0, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
         assertEq(success, true);
         vm.warp(1100);
-        vm.stopPrank();
         vm.startPrank(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
         votingContract.withdrawPrize(0);
     }
